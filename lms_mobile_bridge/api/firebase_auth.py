@@ -13,7 +13,6 @@ from frappe.rate_limiter import rate_limit
 from mobile_control.api.helpers.mobile_config import get_mobile_configuration_payload
 from mobile_control.api.helpers.refresh_token import create_refresh_token
 from mobile_control.api.helpers.response_builder import build_auth_response
-from mobile_control.api.helpers.response_builder import get_request_metadata
 from mobile_control.api.helpers.user_auth import ensure_api_credentials
 from mobile_control.api.helpers.user_auth import generate_auth_token
 from mobile_control.api.helpers.user_auth import validate_mobile_user_role_for_user
@@ -55,10 +54,11 @@ def login_with_firebase(id_token: str, device_id: str | None = None) -> None:
 		else:
 			access_token = generate_auth_token(user)
 
-		request_device_id, user_agent = get_request_metadata()
-		refresh_token = create_refresh_token(
-			user, device_id=device_id or request_device_id, user_agent=user_agent
-		)
+		# frappe.request is unbound outside HTTP contexts (tests, bench execute)
+		user_agent = None
+		if getattr(frappe.local, "request", None):
+			user_agent = frappe.get_request_header("User-Agent")
+		refresh_token = create_refresh_token(user, device_id=device_id, user_agent=user_agent)
 
 		payload = get_mobile_configuration_payload()
 		mobile_config = payload.get("configuration", [])

@@ -33,11 +33,34 @@ DEFAULT_ROLE_MAPPINGS = [
 ]
 
 
+# Roles bridged users receive must never grant desk access, or frappe flips
+# them to System Users (wider desk surface, System-User allowlist bypasses).
+NO_DESK_ROLES = [
+	"Mobile User",
+	"LMS Student",
+	"LMS Trainer",
+	"LMS Master Trainer",
+	"LMS Manager",
+	"LMS HR",
+	"Course Creator",
+	"Moderator",
+	"Batch Evaluator",
+]
+
+
 def seed_dev_site():
 	seed_mobile_configuration()
 	seed_firebase_auth_settings()
+	normalize_role_desk_access()
 	frappe.db.commit()
 	print("lms_mobile_bridge: dev site seeded")
+
+
+def normalize_role_desk_access():
+	for role in NO_DESK_ROLES:
+		if frappe.db.exists("Role", role) and frappe.db.get_value("Role", role, "desk_access"):
+			frappe.db.set_value("Role", role, "desk_access", 0)
+			print(f"lms_mobile_bridge: cleared desk_access on role {role}")
 
 
 def seed_mobile_configuration():

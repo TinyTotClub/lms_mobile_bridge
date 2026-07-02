@@ -104,6 +104,11 @@ class FirebaseBridgeTestCase(IntegrationTestCase):
 				frappe.get_doc({"doctype": "Role", "role_name": role_name, "desk_access": 0}).insert(
 					ignore_permissions=True
 				)
+		# frappe's test bootstrap bulk-toggles roles and can leave desk_access
+		# set; normalize so user_type assertions reflect real deployments.
+		for role_name in ("Mobile User", "LMS Student", *self.TEST_ROLES):
+			if frappe.db.exists("Role", role_name):
+				frappe.db.set_value("Role", role_name, "desk_access", 0, update_modified=False)
 		settings = frappe.get_doc("Firebase Auth Settings")
 		settings.enabled = 1
 		settings.firebase_project_id = PROJECT_ID
