@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "creation": "2026-07-02 14:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "column_break_main",
+  "firebase_project_id",
+  "security_section",
+  "require_verified_email",
+  "column_break_sec",
+  "access_token_ttl_seconds",
+  "role_mapping_section",
+  "role_mappings"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enabled",
+   "description": "Firebase project id — the aud/iss of accepted ID tokens (e.g. tinytotclub-f51cb). Falls back to firebase_project_id in site_config.json.",
+   "fieldname": "firebase_project_id",
+   "fieldtype": "Data",
+   "label": "Firebase Project ID",
+   "mandatory_depends_on": "eval:doc.enabled"
+  },
+  {
+   "depends_on": "eval:doc.enabled",
+   "fieldname": "security_section",
+   "fieldtype": "Section Break",
+   "label": "Security"
+  },
+  {
+   "default": "1",
+   "description": "Reject sign-ins from Firebase accounts whose email is not verified. Email-based linking of existing users always requires a verified email regardless of this flag.",
+   "fieldname": "require_verified_email",
+   "fieldtype": "Check",
+   "label": "Require Verified Email"
+  },
+  {
+   "fieldname": "column_break_sec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Override for the access token lifetime. 0 uses mobile_control's default (24h).",
+   "fieldname": "access_token_ttl_seconds",
+   "fieldtype": "Int",
+   "label": "Access Token TTL (seconds)",
+   "non_negative": 1
+  },
+  {
+   "depends_on": "eval:doc.enabled",
+   "description": "Maps the app_role custom claim from Firebase to Frappe roles. Only roles listed here are managed (added/removed) at login; roles granted manually in the desk are never touched.",
+   "fieldname": "role_mapping_section",
+   "fieldtype": "Section Break",
+   "label": "Role Mapping"
+  },
+  {
+   "fieldname": "role_mappings",
+   "fieldtype": "Table",
+   "label": "Role Mappings",
+   "options": "Firebase Role Mapping"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-07-02 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS Mobile Bridge",
+ "name": "Firebase Auth Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

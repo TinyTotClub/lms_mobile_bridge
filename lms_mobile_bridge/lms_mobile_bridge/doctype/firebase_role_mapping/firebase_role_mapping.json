@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "creation": "2026-07-02 14:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "app_role",
+  "frappe_role"
+ ],
+ "fields": [
+  {
+   "description": "Value of the app_role custom claim in the Firebase ID token (e.g. teacher, businessOwner)",
+   "fieldname": "app_role",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "App Role (Firebase claim)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "frappe_role",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Frappe Role",
+   "options": "Role",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-02 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS Mobile Bridge",
+ "name": "Firebase Role Mapping",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
