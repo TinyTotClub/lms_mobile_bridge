@@ -95,18 +95,25 @@ def mint_token(**overrides) -> str:
 
 
 class FirebaseBridgeTestCase(IntegrationTestCase):
+	TEST_ROLES = ("Bridge Test Role A", "Bridge Test Role B", "Bridge Test Manual Role")
+
 	def setUp(self):
 		super().setUp()
+		for role_name in self.TEST_ROLES:
+			if not frappe.db.exists("Role", role_name):
+				frappe.get_doc({"doctype": "Role", "role_name": role_name, "desk_access": 0}).insert(
+					ignore_permissions=True
+				)
 		settings = frappe.get_doc("Firebase Auth Settings")
 		settings.enabled = 1
 		settings.firebase_project_id = PROJECT_ID
 		settings.require_verified_email = 1
 		settings.access_token_ttl_seconds = 0
 		settings.role_mappings = []
-		settings.append("role_mappings", {"app_role": "teacher", "frappe_role": "Blogger"})
-		settings.append("role_mappings", {"app_role": "businessOwner", "frappe_role": "Blogger"})
+		settings.append("role_mappings", {"app_role": "teacher", "frappe_role": "Bridge Test Role A"})
+		settings.append("role_mappings", {"app_role": "businessOwner", "frappe_role": "Bridge Test Role A"})
 		settings.append(
-			"role_mappings", {"app_role": "businessOwner", "frappe_role": "Website Manager"}
+			"role_mappings", {"app_role": "businessOwner", "frappe_role": "Bridge Test Role B"}
 		)
 		settings.save(ignore_permissions=True)
 
@@ -240,31 +247,31 @@ class TestRoleSync(FirebaseBridgeTestCase):
 
 	def test_mapped_role_added(self):
 		user = self._user_for(app_role="teacher")
-		self.assertIn("Blogger", frappe.get_roles(user.name))
+		self.assertIn("Bridge Test Role A", frappe.get_roles(user.name))
 
 	def test_multi_role_mapping(self):
 		user = self._user_for(app_role="businessOwner")
 		roles = frappe.get_roles(user.name)
-		self.assertIn("Blogger", roles)
-		self.assertIn("Website Manager", roles)
+		self.assertIn("Bridge Test Role A", roles)
+		self.assertIn("Bridge Test Role B", roles)
 
 	def test_managed_role_removed_on_downgrade(self):
 		user = self._user_for(app_role="businessOwner")
-		self.assertIn("Website Manager", frappe.get_roles(user.name))
+		self.assertIn("Bridge Test Role B", frappe.get_roles(user.name))
 
 		user = self._user_for(app_role="teacher")
 		roles = frappe.get_roles(user.name)
-		self.assertIn("Blogger", roles)
-		self.assertNotIn("Website Manager", roles)
+		self.assertIn("Bridge Test Role A", roles)
+		self.assertNotIn("Bridge Test Role B", roles)
 
 	def test_manual_roles_preserved(self):
 		user = self._user_for(app_role="teacher")
-		user.add_roles("Newsletter Manager")  # not in the mapping table
+		user.add_roles("Bridge Test Manual Role")  # not in the mapping table
 
 		user = self._user_for()  # no app_role claim
 		roles = frappe.get_roles(user.name)
-		self.assertNotIn("Blogger", roles)
-		self.assertIn("Newsletter Manager", roles)
+		self.assertNotIn("Bridge Test Role A", roles)
+		self.assertIn("Bridge Test Manual Role", roles)
 
 	def test_protected_roles_always_present(self):
 		user = self._user_for()
