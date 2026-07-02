@@ -126,6 +126,13 @@ class FirebaseBridgeTestCase(IntegrationTestCase):
 		self._request_patch.start()
 		self.addCleanup(self._request_patch.stop)
 
+		# Force the production (RS256-verifying) path regardless of whatever
+		# firebase_auth_emulator_host a dev may have set in the site config —
+		# these tests verify real signature checking against our stubbed cert.
+		self._emulator_patch = patch.object(ft_module, "_emulator_mode_enabled", return_value=False)
+		self._emulator_patch.start()
+		self.addCleanup(self._emulator_patch.stop)
+
 	def tearDown(self):
 		for email in ("bridge.user@example.com", "existing.user@example.com"):
 			if frappe.db.exists("User", email):
